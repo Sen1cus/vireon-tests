@@ -35,7 +35,7 @@ public class FirstApiTest {
                 .get("/")
                 .then()
                 .statusCode(200)
-                .body(containsString("<div id=\"root\">"))
+                .body(containsString("<title>VireonOS</title>"))
                 .extract()
                 .response();
 
