@@ -5,12 +5,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static config.TestConfig.USER_AGENT_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 
 public class AppHealthCheckApiTest {
-    String userAgent = "User-Agent";
 
     @BeforeAll
     static void setup() {
@@ -20,7 +20,7 @@ public class AppHealthCheckApiTest {
     @DisplayName("Aplikace vireonos.lovable.app by měla být dostupná a vracet 200 OK")
     void checkAppAvailability_shouldReturn200() {
         given()
-                .header(userAgent, "JUnit-RestAssured-Test")
+                .header(USER_AGENT_HEADER, "JUnit-RestAssured-Test")
                 .when()
                 .get("/")
                 .then()
@@ -32,7 +32,7 @@ public class AppHealthCheckApiTest {
     @DisplayName("Odeslání GET requestu, přijetí response, kontrola status kódu a obsahu")
     void testGetVireonosApp() {
         Response response = given()
-                .header(userAgent, "Mozilla/5.0 (RestAssured-Test)")
+                .header(USER_AGENT_HEADER, "Mozilla/5.0 (RestAssured-Test)")
                 .when()
                 .get("/")
                 .then()
