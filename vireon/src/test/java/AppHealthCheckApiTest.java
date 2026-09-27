@@ -5,16 +5,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static config.TestConfig.USER_AGENT_HEADER;
+import static config.TestConfig.BASE_URL;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 
 public class AppHealthCheckApiTest {
 
+    private static final String USER_AGENT_HEADER = "User-Agent";
+
     @BeforeAll
     static void setup() {
-        RestAssured.baseURI = "https://vireonos.lovable.app";
+        RestAssured.baseURI = BASE_URL;
+
     }
     @Test
     @DisplayName("Aplikace vireonos.lovable.app by měla být dostupná a vracet 200 OK")
