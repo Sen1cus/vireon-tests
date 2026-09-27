@@ -9,7 +9,9 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 
-public class FirstApiTest {
+public class AppHealthCheckApiTest {
+    String userAgent = "User-Agent";
+
     @BeforeAll
     static void setup() {
         RestAssured.baseURI = "https://vireonos.lovable.app";
@@ -18,7 +20,7 @@ public class FirstApiTest {
     @DisplayName("Aplikace vireonos.lovable.app by měla být dostupná a vracet 200 OK")
     void checkAppAvailability_shouldReturn200() {
         given()
-                .header("User-Agent", "JUnit-RestAssured-Test")
+                .header(userAgent, "JUnit-RestAssured-Test")
                 .when()
                 .get("/")
                 .then()
@@ -30,7 +32,7 @@ public class FirstApiTest {
     @DisplayName("Odeslání GET requestu, přijetí response, kontrola status kódu a obsahu")
     void testGetVireonosApp() {
         Response response = given()
-                .header("User-Agent", "Mozilla/5.0 (RestAssured-Test)")
+                .header(userAgent, "Mozilla/5.0 (RestAssured-Test)")
                 .when()
                 .get("/")
                 .then()
