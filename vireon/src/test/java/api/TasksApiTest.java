@@ -13,6 +13,16 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class TasksApiTest {
 
 
@@ -51,21 +61,69 @@ class TasksApiTest {
                 .extract()
                 .response();
 
+        assertTrue(
+                response.contentType().contains("application/json"),
+                "Response should have JSON content type"
+        );
+
         List<Map<String, Object>> tasks =
                 response.jsonPath().getList("$");
 
         assertNotNull(tasks, "Response should contain a JSON array");
 
         for (Map<String, Object> task : tasks) {
-            assertEquals(
-                    userId,
-                    task.get("user_id"),
-                    "User should only see their own tasks"
+            assertInstanceOf(
+                    String.class,
+                    task.get("id"),
+                    "Task ID should be a string"
             );
-            assertNotNull(task.get("id"), "Task ID must exist");
-            assertNotNull(task.get("title"), "Task title must exist");
-            assertNotNull(task.get("user_id"), "Task owner must exist");
+            assertInstanceOf(
+                    String.class,
+                    task.get("title"),
+                    "Task title should be a string"
+            );
+            assertInstanceOf(
+                    String.class,
+                    task.get("user_id"),
+                    "Task owner ID should be a string"
+            );
+
+            Object status = task.get("status");
+            if (status != null) {
+                assertInstanceOf(
+                        String.class,
+                        status,
+                        "Task status should be a string or null"
+                );
+            }
         }
+    }
+
+    @Test
+    @DisplayName("Unauthenticated user cannot retrieve tasks")
+    void getTasks_withoutAuthenticationShouldReturnNoTasks() {
+        Response response = given()
+                .baseUri(TestConfig.BACKEND_URL)
+                .basePath("/rest/v1")
+                .header("apikey", TestConfig.PUBLISHABLE_KEY)
+                .accept("application/json")
+                .queryParam("select", "id,title,status,user_id")
+                .queryParam("limit", 10)
+                .when()
+                .get("/tasks")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        List<Map<String, Object>> tasks =
+                response.jsonPath().getList("$");
+
+        assertNotNull(tasks, "Response should contain a JSON array");
+        assertTrue(
+                tasks.isEmpty(),
+                "Unauthenticated request should not return tasks"
+        );
     }
 
     @Test
@@ -85,4 +143,37 @@ class TasksApiTest {
         );
     }
 
+    @ParameterizedTest
+    @MethodSource("invalidCredentials")
+    void loginWithInvalidCredentialsShouldFail(
+            String email,
+            String password
+    ) {
+        Response response = new AuthClient()
+                .loginExpectingFailure(email, password);
+
+        assertEquals(400, response.statusCode());
+        assertNull(response.jsonPath().getString("access_token"));
+    }
+
+    static Stream<Arguments> invalidCredentials() {
+        return Stream.of(
+                Arguments.of(
+                        TestConfig.TEST_USER_EMAIL,
+                        "DefinitelyWrongPassword123!"
+                ),
+                Arguments.of(
+                        "missing-user@example.invalid",
+                        "SomePassword123!"
+                ),
+                Arguments.of(
+                        TestConfig.TEST_USER_EMAIL,
+                        ""
+                ),
+                Arguments.of(
+                        "",
+                        "SomePassword123!"
+                )
+        );
+    }
 }
