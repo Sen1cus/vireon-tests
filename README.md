@@ -75,7 +75,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/Sen1cus/vireon-tests.git
-cd vireon-tests
+cd vireon-tests/vireon
 ```
 
 Configure the required environment variables, then run:
