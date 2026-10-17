@@ -12,7 +12,7 @@ A Java-based API test automation project for testing the Vireon application. The
 ## Project Structure
 
 ```text
-src/test/java/
+vireon/src/test/java/
 ├── api/
 │   ├── AuthClient.java
 │   ├── AuthSession.java
