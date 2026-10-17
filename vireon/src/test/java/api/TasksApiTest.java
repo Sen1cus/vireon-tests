@@ -111,23 +111,6 @@ class TasksApiTest {
         );
     }
 
-    @Test
-    @DisplayName("Login with an incorrect password should fail")
-    void loginWithIncorrectPassword_shouldReturn401() {
-        AuthClient authClient = new AuthClient();
-
-        Response response = authClient.loginExpectingFailure(
-                TestConfig.TEST_USER_EMAIL,
-                "DefinitelyWrongPassword123!"
-        );
-
-        assertEquals(400, response.getStatusCode());
-        assertNull(
-                response.jsonPath().getString("access_token"),
-                "Failed login must not return an access token"
-        );
-    }
-
     @ParameterizedTest
     @MethodSource("invalidCredentials")
     void loginWithInvalidCredentialsShouldFail(
