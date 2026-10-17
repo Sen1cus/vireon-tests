@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +28,7 @@ class TasksApiTest {
     private static AuthSession session;
     private static String accessToken;
     private static String userId;
+    private static final TasksClient tasksClient = new TasksClient();
 
     @BeforeAll
     static void authenticate() {
@@ -46,16 +46,8 @@ class TasksApiTest {
     @Test
     @DisplayName("Authenticated user can retrieve permitted tasks")
     void getTasks_shouldReturnValidJson() {
-        Response response = given()
-                .baseUri(TestConfig.BACKEND_URL)
-                .basePath("/rest/v1")
-                .header("apikey", TestConfig.PUBLISHABLE_KEY)
-                .header("Authorization", "Bearer " + accessToken)
-                .accept("application/json")
-                .queryParam("select", "id,title,status,user_id")
-                .queryParam("limit", 10)
-                .when()
-                .get("/tasks")
+        Response response = tasksClient
+                .getTasks(accessToken)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -102,15 +94,8 @@ class TasksApiTest {
     @Test
     @DisplayName("Unauthenticated user cannot retrieve tasks")
     void getTasks_withoutAuthenticationShouldReturnNoTasks() {
-        Response response = given()
-                .baseUri(TestConfig.BACKEND_URL)
-                .basePath("/rest/v1")
-                .header("apikey", TestConfig.PUBLISHABLE_KEY)
-                .accept("application/json")
-                .queryParam("select", "id,title,status,user_id")
-                .queryParam("limit", 10)
-                .when()
-                .get("/tasks")
+        Response response = tasksClient
+                .getTasksWithoutAuthentication()
                 .then()
                 .statusCode(200)
                 .extract()
